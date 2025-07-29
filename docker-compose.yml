@@ -1,0 +1,53 @@
+services:
+  airflow-webserver:
+    build:
+      context: .  
+      dockerfile: airflow/Dockerfile
+    ports:
+      - "8082:8080"
+    environment:
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/airflow.db
+      KAFKA_BROKER: kfakasda.eastus.cloudapp.azure.com:9092
+      ELASTIC_HOST: http://clustersdaelatsic.eastus.cloudapp.azure.com:9200
+      ELASTIC_USER: elastic
+      ELASTIC_PASS: changeme
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./kafka:/opt/airflow/kafka
+      - ./utils:/opt/airflow/utils
+    command: webserver
+    entrypoint: bash -c "airflow db init && exec airflow webserver"
+
+  airflow-scheduler:
+    build:
+      context: .  
+      dockerfile: airflow/Dockerfile
+    depends_on:
+      - airflow-webserver
+    environment:
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/airflow.db
+      KAFKA_BROKER: kfakasda.eastus.cloudapp.azure.com:9092
+      ELASTIC_HOST: http://clustersdaelatsic.eastus.cloudapp.azure.com:9200
+      ELASTIC_USER: elastic
+      ELASTIC_PASS: changeme
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./kafka:/opt/airflow/kafka
+      - ./utils:/opt/airflow/utils
+    command: scheduler
+    entrypoint: bash -c "exec airflow scheduler"
+
+  kafka-producer:
+    build:
+      context: .
+      dockerfile: kafka/Dockerfile
+    depends_on:
+      - airflow-webserver
+    volumes:
+      - ./data:/data
+      - ./kafka:/app
+      - ./utils:/app/utils
+    environment:
+      KAFKA_BROKER: kfakasda.eastus.cloudapp.azure.com:9092

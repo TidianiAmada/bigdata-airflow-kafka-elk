@@ -1,0 +1,7 @@
+airflow users create \
+    --username tidiani \
+    --firstname tidiani \
+    --lastname top \
+    --role Admin \
+    --email catidiani.top@univ-thies.sn \
+    --password password

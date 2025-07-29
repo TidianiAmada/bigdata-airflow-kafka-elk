@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "confort": "standard",
+      "prix_base_per_km": 2,
+      "properties-client": {
+        "logitude": 2.3522,
+        "latitude": 48.8566,
+        "nomclient": "FALL",
+        "telephoneClient": "060786575"
+      },
+      "properties-driver": {
+        "logitude": 3.7038,
+        "latitude": 40.4168,
+        "nomDriver": "DIOP",
+        "telephoneDriver": "0760786575"
+      }
+    },
+    {"confort":"premium","prix_base_per_km":1000,"properties-client":{"logitude":-17.4312,"latitude":14.6880,"nomclient":"Fatou DioSeckp","telephoneClient":"783456789"},"properties-driver":{"logitude":-17.4500,"latitude":14.7150,"nomDriver":"Ousmane Sall","telephoneDriver":"704567679"}},
+    {"confort":"standard","prix_base_per_km":500,"properties-client":{"logitude":-17.4512,"latitude":13.6880,"nomclient":"Fatou Diop","telephoneClient":"783456789"},"properties-driver":{"logitude":-17.4100,"latitude":14.7150,"nomDriver":"Ousmane Sarr","telephoneDriver":"704567890"}}
+  ]
+}
