@@ -61,3 +61,6 @@ with DAG(
     )
 
     consume_result >> transform >> index_elasticsearch
+
+if __name__ == "__main__":
+    dag2.cli()

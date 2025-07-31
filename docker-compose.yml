@@ -17,7 +17,13 @@ services:
       - ./kafka:/opt/airflow/kafka
       - ./kafka/utils:/opt/airflow/kafka/utils
     command: webserver
-    entrypoint: bash -c "airflow db init && exec airflow webserver"
+    entrypoint: >
+      bash -c "
+        airflow db init &&
+        airflow users create --username tidiani --firstname tidiani --lastname top --role Admin --email catidiani.top@univ-thies.sn --password password &&
+        exec airflow webserver
+      "
+
 
   airflow-scheduler:
     build:

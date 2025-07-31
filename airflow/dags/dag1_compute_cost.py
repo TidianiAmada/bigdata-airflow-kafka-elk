@@ -46,3 +46,6 @@ with DAG(
     )
 
     consume_kafka >> compute_cost >> publish_kafka
+
+if __name__ == "__main__":
+    dag1.cli()

@@ -7,4 +7,5 @@ COPY ./kafka /opt/airflow/kafka
 COPY ./kafka/utils /opt/airflow/kafka/utils
 
 
-RUN pip install --no-cache-dir kafka-python elasticsearch apache-airflow-providers-elasticsearch
+RUN pip install --no-cache-dir kafka-python elasticsearch apache-airflow-providers-elasticsearch apache-airflow-providers-apache-kafka
+
