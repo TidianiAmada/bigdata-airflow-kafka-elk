@@ -34,7 +34,7 @@ with DAG(
 
     consume_result = ConsumeFromTopicOperator(
         task_id='consume_kafka_result',
-        topic='result_gora',
+        topics=['result_gora'],
         kafka_conn_id='kafka_default',
         output_file='/tmp/kafka_result.json',
     )

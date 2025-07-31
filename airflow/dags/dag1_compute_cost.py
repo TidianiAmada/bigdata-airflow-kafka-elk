@@ -21,7 +21,7 @@ with DAG(
 
     consume_kafka = ConsumeFromTopicOperator(
         task_id='consume_kafka_source',
-        topic='source_fatou',
+        topics=['source_fatou'],
         kafka_conn_id='kafka_default',
         output_file='/tmp/raw_travel_data.json',
     )
@@ -40,7 +40,7 @@ with DAG(
 
     publish_kafka = ProduceToTopicOperator(
         task_id='publish_kafka_result',
-        topic='result_gora',
+        topics=['result_gora'],
         kafka_conn_id='kafka_default',
         input_file='/tmp/processed_travel_data.json',
     )
