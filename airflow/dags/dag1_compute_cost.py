@@ -1,51 +1,77 @@
+import json
 import subprocess
 from airflow import DAG
-from airflow.operators.python import PythonOperator
-from datetime import datetime
+from datetime import datetime, timedelta
 from airflow.providers.apache.kafka.operators.consume import ConsumeFromTopicOperator
 from airflow.providers.apache.kafka.operators.produce import ProduceToTopicOperator
 
 
 default_args = {
-    'start_date': datetime(2025, 7, 29),
+    'start_date': datetime.now()+timedelta(seconds=30),
     'retries': 1,
 }
+
+import json
+from math import radians, sin, cos, sqrt, atan2
+
+def haversine(lat1, lon1, lat2, lon2):
+    R = 6371
+    dlat = radians(lat2 - lat1)
+    dlon = radians(lon2 - lon1)
+    a = sin(dlat / 2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    return R * c
+
+def compute_cost(record):
+    client = record["properties-client"]
+    driver = record["properties-driver"]
+    distance = haversine(client["latitude"], client["logitude"], driver["latitude"], driver["logitude"])
+    cost = distance * record["prix_base_per_km"]
+
+    record["distance"] = round(distance, 3)
+    record["prix_travel"] = round(cost, 2)
+    return record
+
+
+# Function that Kafka Consume operator will call
+def process_kafka_messages(messages, **kwargs):
+    results = []
+    for msg in messages:
+        try:
+            data = json.loads(msg.value().decode())
+            enriched = compute_cost(data)
+            results.append({"value": json.dumps(enriched).encode()})
+        except Exception as e:
+            print(f"Invalid message: {e}")
+    return results
 
 with DAG(
     dag_id='dag1_kafka_compute_cost',
     default_args=default_args,
     schedule_interval='@once',
     catchup=False,
-    description='Consumes travel data from Kafka, computes cost, publishes to Kafka',
+    description='Consumes travel data from Kafka, computes cost, and publishes result back to Kafka',
 ) as dag1:
+
 
     consume_kafka = ConsumeFromTopicOperator(
         task_id='consume_kafka_source',
         topics=['source_fatou'],
-        kafka_conn_id='kafka_default',
-        output_file='/tmp/raw_travel_data.json',
+        kafka_config_id='kafka_default',
+        apply_function=process_kafka_messages, 
+        commit_cadence="end_of_batch",
+        max_messages=100
     )
 
-    def compute_travel_cost():
-        subprocess.run(["python", "/opt/airflow/kafka/consumer_cost.py"])
-
-    compute_cost = PythonOperator(
-        task_id='compute_travel_cost',
-        python_callable=compute_travel_cost,
-        op_kwargs={
-            'input_path': '/tmp/raw_travel_data.json',
-            'output_path': '/tmp/processed_travel_data.json',
-        },
-    )
-
-    publish_kafka = ProduceToTopicOperator(
+    produce_kafka = ProduceToTopicOperator(
         task_id='publish_kafka_result',
-        topics=['result_gora'],
-        kafka_conn_id='kafka_default',
-        input_file='/tmp/processed_travel_data.json',
+        topic='result_gora',
+        kafka_config_id='kafka_default',
+        producer_function=process_kafka_messages
     )
 
-    consume_kafka >> compute_cost >> publish_kafka
+
+    consume_kafka >> produce_kafka
 
 if __name__ == "__main__":
     dag1.cli()

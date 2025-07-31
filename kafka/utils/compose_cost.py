@@ -1,3 +1,4 @@
+import json
 from math import radians, sin, cos, sqrt, atan2
 
 def haversine(lat1, lon1, lat2, lon2):
@@ -17,3 +18,4 @@ def compute_cost(record):
     record["distance"] = round(distance, 3)
     record["prix_travel"] = round(cost, 2)
     return record
+

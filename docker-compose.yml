@@ -50,7 +50,7 @@ services:
       context: .
       dockerfile: kafka/Dockerfile
     depends_on:
-      - airflow-webserver
+      - airflow-scheduler
     volumes:
       - ./data:/data
       - ./kafka:/app
