@@ -44,7 +44,7 @@ def index_to_elasticsearch(**kwargs):
 with DAG(
     dag_id='dag2_kafka_to_elasticsearch',
     default_args=default_args,
-    schedule_interval='@once',
+    schedule_interval=timedelta(seconds=45),
     catchup=False,
     description='Consumes result data from Kafka and indexes into Elasticsearch',
 ) as dag2:

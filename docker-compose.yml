@@ -43,7 +43,7 @@ services:
       - ./kafka:/opt/airflow/kafka
       - ./kafka/utils:/opt/airflow/kafka/utils
     command: scheduler
-    entrypoint: bash -c "exec airflow scheduler"
+    entrypoint: bash -c "exec airflow scheduler && airflow db init"
 
   kafka-producer:
     build:

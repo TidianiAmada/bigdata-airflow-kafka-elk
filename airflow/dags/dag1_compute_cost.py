@@ -48,7 +48,7 @@ def process_kafka_messages(messages, **kwargs):
 with DAG(
     dag_id='dag1_kafka_compute_cost',
     default_args=default_args,
-    schedule_interval='@once',
+    schedule_interval=timedelta(seconds=50),
     catchup=False,
     description='Consumes travel data from Kafka, computes cost, and publishes result back to Kafka',
 ) as dag1:
