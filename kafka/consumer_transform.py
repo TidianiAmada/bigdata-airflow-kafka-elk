@@ -16,4 +16,4 @@ consumer = KafkaConsumer('result', bootstrap_servers=KAFKA_BROKER, auto_offset_r
 
 for msg in consumer:
     flat = transform(msg.value)
-    es.index(index="travel-data", document=flat)
+    es.index(index="travel-data-tjni", document=flat)

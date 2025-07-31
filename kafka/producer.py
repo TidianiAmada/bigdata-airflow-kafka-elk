@@ -45,7 +45,7 @@ try:
 
     for i, record in enumerate(data["data"]):
         producer.send('source_fatou', value=record)
-        logger.info(f"📤 Record {i+1} sent to topic 'source'.")
+        logger.info(f"📤 Record {i+1} sent to topic 'source_fatou'.")
 
     producer.flush()
     producer.close()

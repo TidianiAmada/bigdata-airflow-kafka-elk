@@ -15,7 +15,7 @@ services:
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./kafka:/opt/airflow/kafka
-      - ./utils:/opt/airflow/utils
+      - ./kafka/utils:/opt/airflow/kafka/utils
     command: webserver
     entrypoint: bash -c "airflow db init && exec airflow webserver"
 
@@ -35,7 +35,7 @@ services:
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./kafka:/opt/airflow/kafka
-      - ./utils:/opt/airflow/utils
+      - ./kafka/utils:/opt/airflow/kafka/utils
     command: scheduler
     entrypoint: bash -c "exec airflow scheduler"
 
@@ -48,6 +48,6 @@ services:
     volumes:
       - ./data:/data
       - ./kafka:/app
-      - ./utils:/app/utils
+      - ./kafka/utils:/app/kafka/utils
     environment:
       KAFKA_BROKER: kfakasda.eastus.cloudapp.azure.com:9092
