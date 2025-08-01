@@ -6,6 +6,9 @@ from airflow.utils.log.logging_mixin import LoggingMixin
 from datetime import datetime, timedelta
 import json
 
+from utils.transform_json import transform
+
+
 log = LoggingMixin().log
 
 default_args = {
@@ -14,68 +17,78 @@ default_args = {
     'retry_delay': timedelta(seconds=10),
 }
 
-# Kafka message processing function (called by ConsumeFromTopicOperator)
+# Function used by the Kafka consume operator to receive and prepare records
 def transform_message_to_es(message, **kwargs):
     try:
         raw = message.value().decode()
-        record = json.loads(raw)
-        record["agent_timestamp"] = datetime.now()
-        log.info(f"📩 Received and transformed record: {record}")
-        return [{"value": json.dumps(record).encode()}]
+        original = json.loads(raw)
+
+        # 🔁 Apply your custom transformation
+        transformed = transform(original)
+
+        log.info(f"📩 Transformed message: {transformed}")
+        return [{"value": json.dumps(transformed).encode()}]
     except Exception as e:
-        log.error(f"❌ Error parsing message: {e}")
+        log.error(f"❌ Failed to parse/transform message: {e}")
         return []
 
-# Indexer callable
+# Function to index records into Elasticsearch
 def index_to_elasticsearch(**kwargs):
     ti = kwargs['ti']
-    records = ti.xcom_pull(task_ids='consume_kafka_result')
+    records = ti.xcom_pull(task_ids='consume_kafka_output')
 
     if not records:
-        log.warning("⚠️ No data received from Kafka topic.")
+        log.warning("⚠️ No messages pulled from Kafka.")
         return
 
     es_hook = ElasticsearchHook(elasticsearch_conn_id="elasticsearch_default")
     es = es_hook.get_conn()
     index_name = 'groupe_tfig'
 
-    # Ensure index exists
+    # Create index if it doesn't exist
     if not es.indices.exists(index=index_name):
-        log.info(f"🔧 Creating index '{index_name}' with default mapping...")
+        log.info(f"🔧 Creating Elasticsearch index '{index_name}'...")
         es.indices.create(index=index_name, body={
             "mappings": {
                 "properties": {
-                    "source": {"type": "keyword"},
-                    "destination": {"type": "keyword"},
-                    "cost": {"type": "float"},
+                    "nomclient": {"type": "keyword"},
+                    "telephoneClient": {"type": "keyword"},
+                    "locationClient": {"type": "geo_point"},
+                    "distance": {"type": "float"},
+                    "confort": {"type": "keyword"},
+                    "prix_travel": {"type": "float"},
+                    "nomDriver": {"type": "keyword"},
+                    "locationDriver": {"type": "geo_point"},
+                    "telephoneDriver": {"type": "keyword"},
                     "agent_timestamp": {"type": "date"}
                 }
             }
         })
     else:
-        log.info(f"✅ Index '{index_name}' already exists.")
+        log.info(f"✅ Elasticsearch index '{index_name}' exists.")
 
-    indexed_count = 0
+    indexed = 0
     for record in records:
         try:
-            data = json.loads(record['value'].decode())
-            es.index(index=index_name, document=data)
-            indexed_count += 1
+            doc = json.loads(record['value'].decode())
+            es.index(index=index_name, document=doc)
+            indexed += 1
         except Exception as e:
-            log.error(f"❌ Indexing error: {e} | Record: {record}")
+            log.error(f"❌ Error indexing document: {e} | Record: {record}")
 
-    log.info(f"✅ Indexed {indexed_count}/{len(records)} records into '{index_name}'.")
+    log.info(f"✅ Indexed {indexed}/{len(records)} documents into '{index_name}'.")
 
+# DAG definition
 with DAG(
     dag_id='dag2_kafka_to_elasticsearch',
     default_args=default_args,
-    schedule_interval=timedelta(seconds=45),
+    schedule_interval=timedelta(seconds=45),  # ⏱️ Every 45 seconds
     catchup=False,
-    description='Consumes result data from Kafka and indexes into Elasticsearch',
+    description='Consumes Kafka result topic and indexes transformed data into Elasticsearch',
 ) as dag2:
 
     consume_result = ConsumeFromTopicOperator(
-        task_id='consume_kafka_result',
+        task_id='consume_kafka_output',
         topics=['result_gora'],
         kafka_config_id='kafka_default',
         apply_function=transform_message_to_es,
@@ -84,7 +97,7 @@ with DAG(
     )
 
     index_elasticsearch = PythonOperator(
-        task_id='index_to_elasticsearch',
+        task_id='write_to_elasticsearch',
         python_callable=index_to_elasticsearch,
     )
 

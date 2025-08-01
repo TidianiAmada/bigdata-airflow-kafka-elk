@@ -49,14 +49,14 @@ def process_kafka_messages(messages, **kwargs):
 with DAG(
     dag_id='dag1_kafka_compute_cost',
     default_args=default_args,
-    schedule_interval='@hourly',
+    schedule_interval=timedelta(minutes=1),
     catchup=False,
     description='Consumes travel data from Kafka, computes cost, and publishes result back to Kafka',
 ) as dag1:
 
 
     consume_kafka = ConsumeFromTopicOperator(
-        task_id='consume_kafka_source',
+        task_id='consume_kafka_trafic',
         topics=['source_issa'],
         kafka_config_id='kafka_default',
         apply_function=process_kafka_messages, 
@@ -65,7 +65,7 @@ with DAG(
     )
 
     produce_kafka = ProduceToTopicOperator(
-        task_id='publish_kafka_result',
+        task_id='produce_kafka_result',
         topic='result_gora',
         kafka_config_id='kafka_default',
         producer_function=process_kafka_messages
