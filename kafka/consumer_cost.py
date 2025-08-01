@@ -5,7 +5,7 @@ from utils.compose_cost import compute_cost
 
 KAFKA_BROKER = os.getenv("KAFKA_BROKER")
 
-consumer = KafkaConsumer('source_fatou', bootstrap_servers=KAFKA_BROKER, auto_offset_reset='earliest',
+consumer = KafkaConsumer('source_issa', bootstrap_servers=KAFKA_BROKER, auto_offset_reset='earliest',
                          value_deserializer=lambda m: json.loads(m.decode('utf-8')))
 
 producer = KafkaProducer(bootstrap_servers=KAFKA_BROKER, value_serializer=lambda v: json.dumps(v).encode('utf-8'))

@@ -7,8 +7,9 @@ from airflow.providers.apache.kafka.operators.produce import ProduceToTopicOpera
 
 
 default_args = {
-    'start_date': datetime.now()+timedelta(seconds=30),
+    'start_date': datetime.now(),
     'retries': 1,
+    'retry_delay': timedelta(seconds=10),
 }
 
 import json
@@ -48,7 +49,7 @@ def process_kafka_messages(messages, **kwargs):
 with DAG(
     dag_id='dag1_kafka_compute_cost',
     default_args=default_args,
-    schedule_interval=timedelta(seconds=50),
+    schedule_interval='@hourly',
     catchup=False,
     description='Consumes travel data from Kafka, computes cost, and publishes result back to Kafka',
 ) as dag1:
@@ -56,7 +57,7 @@ with DAG(
 
     consume_kafka = ConsumeFromTopicOperator(
         task_id='consume_kafka_source',
-        topics=['source_fatou'],
+        topics=['source_issa'],
         kafka_config_id='kafka_default',
         apply_function=process_kafka_messages, 
         commit_cadence="end_of_batch",
