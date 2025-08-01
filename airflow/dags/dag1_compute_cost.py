@@ -46,6 +46,7 @@ def process_kafka_messages(messages, **kwargs):
             print(f"Invalid message: {e}")
     return results
 
+
 with DAG(
     dag_id='dag1_kafka_compute_cost',
     default_args=default_args,
@@ -65,11 +66,12 @@ with DAG(
     )
 
     produce_kafka = ProduceToTopicOperator(
-        task_id='produce_kafka_result',
-        topic='result_gora',
-        kafka_config_id='kafka_default',
-        producer_function=process_kafka_messages
+    task_id='produce_kafka_result',
+    topic='result_gora',
+    kafka_config_id='kafka_default',
+    producer_function=lambda **kwargs: kwargs['ti'].xcom_pull(task_ids='consume_kafka_trafic')
     )
+
 
 
     consume_kafka >> produce_kafka
