@@ -6,17 +6,17 @@
       "properties-client": {
         "logitude": -17.4707,
         "latitude": 14.3080,
-        "nomclient": "Dione",
+        "nomclient": "Top",
         "telephoneClient": "760786578"
       },
       "properties-driver": {
-        "logitude": -17.2342,
-        "latitude": 14.5890,
-        "nomDriver": "Kebe",
-        "telephoneDriver": "780283904"
+        "logitude": -17.2842,
+        "latitude": 14.2890,
+        "nomDriver": "Sarr",
+        "telephoneDriver": "780291904"
       }
     },
-    {"confort":"premium","prix_base_per_km":1000,"properties-client":{"logitude":-17.4312,"latitude":14.6880,"nomclient":"Fatou Seck","telephoneClient":"783456789"},"properties-driver":{"logitude":-17.4500,"latitude":14.7150,"nomDriver":"Ousmane Sall","telephoneDriver":"704567679"}},
-    {"confort":"standard","prix_base_per_km":500,"properties-client":{"logitude":-17.4512,"latitude":14.5680,"nomclient":"Amy Diop","telephoneClient":"783456789"},"properties-driver":{"logitude":-17.4100,"latitude":14.7150,"nomDriver":"Babacar Sarr","telephoneDriver":"704567890"}}
+    {"confort":"standard","prix_base_per_km":1800,"properties-client":{"logitude":-17.4312,"latitude":14.6880,"nomclient":"Fatou Sall","telephoneClient":"783556789"},"properties-driver":{"logitude":-17.3500,"latitude":14.7190,"nomDriver":"Ousmane Cissé","telephoneDriver":"704527679"}},
+    {"confort":"premium","prix_base_per_km":200,"properties-client":{"logitude":-17.4512,"latitude":14.5680,"nomclient":"Khady Diop","telephoneClient":"783458789"},"properties-driver":{"logitude":-17.4200,"latitude":14.6150,"nomDriver":"Babacar Ba","telephoneDriver":"704967890"}}
   ]
 }

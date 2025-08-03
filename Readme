@@ -5,3 +5,34 @@ airflow users create \
     --role Admin \
     --email catidiani.top@univ-thies.sn \
     --password password
+
+
+docker run --rm -it confluentinc/cp-kafka:latest bash
+
+kafka-console-consumer --bootstrap-server kfakasda.eastus.cloudapp.azure.com:9092 --topic result_gora --from-beginning --timeout-ms 10000
+
+
+kafka-topics --bootstrap-server kfakasda.eastus.cloudapp.azure.com:9092 --list
+
+
+kafka-topics --bootstrap-server kfakasda.eastus.cloudapp.azure.com:9092 --describe --topic result_gora
+
+
+**********************************************
+
+| Field         | Value                                  |
+| ------------- | -------------------------------------- |
+| **Conn Id**   | `elasticsearch_default`                |
+| **Conn Type** | `Elasticsearch`                        |
+| **Host**      | `http://your-elasticsearch-host:9200`  |
+| **Login**     | `elastic` *(if required)*              |
+| **Password**  | `your-password` *(if required)*        |
+| **Port**      | `9200` *(if not part of the Host URL)* |
+| **Schema**    | `http` *(or `https` if SSL enabled)*   |
+
+
+{
+  "bootstrap.servers": "kfakasda.eastus.cloudapp.azure.com:9092",
+  "group.id": "airflow-consumer-group",
+  "auto.offset.reset": "earliest"
+}
